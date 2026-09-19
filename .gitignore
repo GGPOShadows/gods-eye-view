@@ -12,3 +12,16 @@ output/
 3d-models/
 pinokio/ENVIRONMENT
 pinokio/.installed
+
+# --- secret hardening (fork-local) ---
+# Upstream ignores only bare `.env`, but Vite's loadEnv and scripts/setup-doctor.mjs
+# also read .env.local and .env.<mode>[.local]. Those were NOT ignored upstream.
+.env
+.env.*
+!.env.example
+pinokio/ENVIRONMENT
+*.pem
+*.crt
+*.key
+credentials.json
+.gev-cache/
