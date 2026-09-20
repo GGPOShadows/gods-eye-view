@@ -119,7 +119,7 @@ Optional perf preset (branch `pr/render-quality-presets`): `http://localhost:417
 
 ## 8. Performance — the settled facts (Intel UHD 770)
 
-Full methodology and tables in [[gods-eye-view APPENDIX#A. Performance measurement methodology]] and [[gods-eye-view APPENDIX#B. Measured results]].
+Full methodology and tables in [[gods-eye-view APPENDIX#A. Performance measurement methodology]] and [[gods-eye-view APPENDIX#B. Measured results (Intel UHD 770, Chrome 152, ANGLE D3D11)]].
 
 - **Valid measurement requires:** headed Chrome with the real GPU, frames counted from `scene.postRender`, canvas dimensions asserted unchanged, warm tile cache, interleaved A/B/A arms. Anything else produced wrong numbers in this project — twice.
 - **Shipped config on this iGPU:** ~17.9 fps at 1264×705, keyless, no layers, parked. ~15 fps with photorealistic 3D + flights/vessels/installations at 1518×1082 on `balanced`.

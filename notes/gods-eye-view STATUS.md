@@ -42,7 +42,7 @@ aliases:
 
 ## 2026-09-20 ~10:00–12:00 PDT — GPU investigation (Phase 3 item 2) and issue #8 comment
 
-Full detail in [[gods-eye-view APPENDIX#A. Performance measurement methodology]] / [[gods-eye-view APPENDIX#B. Measured results]]. Summary of the forensic sequence:
+Full detail in [[gods-eye-view APPENDIX#A. Performance measurement methodology]] / [[gods-eye-view APPENDIX#B. Measured results (Intel UHD 770, Chrome 152, ANGLE D3D11)]]. Summary of the forensic sequence:
 
 1. Tried to measure in the Claude browser pane → `javascript_tool` timed out; pane was hidden; `canvas: "0x0"`. **All earlier pane-based numbers (22.7 fps baseline, "30 fps ceiling") declared invalid.**
 2. Switched to headed Puppeteer Chrome (`.gev-gpu-profile.mjs`). Sequential run showed a 26% drift between first and last baseline (tile-cache warming) → sequential ordering can't be trusted.
