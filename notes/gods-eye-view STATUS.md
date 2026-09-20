@@ -28,6 +28,7 @@ aliases:
 - Dev server started on `pr/render-quality-presets`; opened `http://localhost:4173/?quality=balanced`; Google photorealistic 3D engaged automatically (credit line switched to "Google Maps"); chose LIVE CONTACTS → Austin airport with real taxiing aircraft (UAL2447 A320 at 0 ft / 14 kts), panel showed 237 flights, 8 military, 4 vessels.
 - **First real-workload reading:** canvas 1518×1082, msaa 2, scale 0.85, photorealistic 3D + live layers, pane visible → **15.3 rendered fps**. Lower than the empty-globe 22.6 because the canvas is larger and 3D tiles are heavier.
 - Owner flew around, then asked to continue → this doc set (Phase 4).
+- Four docs written to the vault and copied to `notes/` on fork `main`. **The pre-commit guard blocked the first docs commit** — the APPENDIX quoted the fake test key and the `sk-`-prefixed cable id verbatim, and both matched the key-pattern rule. Correct behaviour; neutralized the two strings in the docs rather than bypassing the hook. (Side lesson: native Python can't see Git-Bash `/c/…` paths — `glob` silently returned nothing until the path was written as `C:/…`.) Committed as `092d648`, pushed.
 
 ## 2026-09-20 ~12:00–13:00 PDT — PR #680: opt-in render-quality presets
 
