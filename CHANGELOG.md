@@ -1,5 +1,12 @@
 # Changelog
 
+- Add opt-in render-quality presets for weak GPUs. `?quality=balanced` and
+  `?quality=performance` set `scene.msaaSamples` and `viewer.resolutionScale`
+  together; the default (`high`) reproduces the previous settings exactly, so
+  nothing changes unless a user asks for it. Measured on an Intel UHD 770:
+  17.9 fps as shipped, 22.6 balanced, 35.1 performance. An unknown value falls
+  back to the default.
+
 - Enable responsive trackpad pinch zoom on the globe. Browser pixel-mode
   `Ctrl+wheel` pinch gestures now reach Cesium with bounded amplification,
   while ordinary wheel, line-mode and touch-pinch inputs retain their existing
