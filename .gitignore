@@ -20,15 +20,10 @@ output/
 pinokio/ENVIRONMENT
 pinokio/.installed
 
-# --- secret hardening (fork-local) ---
-# Upstream ignores only bare `.env`, but Vite's loadEnv and scripts/setup-doctor.mjs
-# also read .env.local and .env.<mode>[.local]. Those were NOT ignored upstream.
-.env
-.env.*
-!.env.example
-pinokio/ENVIRONMENT
+# --- fork-local additions (not upstream) ---
+# Other credential-bearing artifacts: TLS material and OpenSky's downloaded
+# OAuth client file. Upstream's dotenv rules above landed via PR #678.
 *.pem
 *.crt
 *.key
 credentials.json
-.gev-cache/
