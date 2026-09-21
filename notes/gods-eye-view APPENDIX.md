@@ -1,7 +1,7 @@
 ---
 title: gods-eye-view — Technical Appendix (deep detail)
 created: 2026-09-20 13:40 PDT
-updated: 2026-09-20 13:40 PDT
+updated: 2026-09-20 22:14 PDT
 tags:
   - project/gods-eye-view
   - appendix
@@ -143,9 +143,9 @@ Tested 2026-09-19: a staged `.env` containing `OPENAI_API_KEY=sk-proj-AbCd…(fa
 
 | # | Type | Branch / SHA | Subject | State (2026-09-20 13:40 PDT) |
 |---|---|---|---|---|
-| [PR #677](https://github.com/bilawalsidhu/gods-eye-view/pull/677) | fix | `pr/tomtom-budget` `5e99adc` | `DEFAULT_DAILY_BUDGET` 40000→6000; corrected `traffic.js` comment, `.env.example`, `DATA_SOURCES.md`, `CHANGELOG.md`, `CURRENT-STATE.md` | OPEN, MERGEABLE, 0 reviews |
-| [PR #678](https://github.com/bilawalsidhu/gods-eye-view/pull/678) | security | `pr/gitignore-env-variants` `82f3516` | `.gitignore`: `.env` → `.env`, `.env.*`, `!.env.example` | OPEN, MERGEABLE, 0 reviews |
-| [PR #680](https://github.com/bilawalsidhu/gods-eye-view/pull/680) | feat/perf | `pr/render-quality-presets` `88b8935` | `src/app/renderQuality.js` + 12 tests, `viewer.js` wiring, boundary/format registration, docs | OPEN, MERGEABLE, 0 reviews |
+| [PR #677](https://github.com/bilawalsidhu/gods-eye-view/pull/677) | fix | `pr/tomtom-budget` `5e99adc` | `DEFAULT_DAILY_BUDGET` 40000→6000; corrected `traffic.js` comment, `.env.example`, `DATA_SOURCES.md`, `CHANGELOG.md`, `CURRENT-STATE.md` | **MERGED** 2026-09-20 22:43Z by samehkhamis |
+| [PR #678](https://github.com/bilawalsidhu/gods-eye-view/pull/678) | security | `pr/gitignore-env-variants` `82f3516` | `.gitignore`: `.env` → `.env`, `.env.*`, `!.env.example` | **MERGED** 2026-09-20 22:33Z by samehkhamis |
+| [PR #680](https://github.com/bilawalsidhu/gods-eye-view/pull/680) | feat/perf | `pr/render-quality-presets` `88b8935` | `src/app/renderQuality.js` + 12 tests, `viewer.js` wiring, boundary/format registration, docs | OPEN; rebased onto post-#677/#678 `main` 2026-09-20 (now `395579a`), gates green, awaiting review |
 | [PR #298 comment](https://github.com/bilawalsidhu/gods-eye-view/pull/298#issuecomment-5747992475) | review | — | Eviction-before-rebuild ⇒ 502 (simulated repro); LRU-touch + O(1) eviction; offer of impl + tests; #327↔#594 cross-ref | posted, no reply |
 | [Issue #8 comment](https://github.com/bilawalsidhu/gods-eye-view/issues/8#issuecomment-5748116872) | data | — | Full verified matrix; #8 items 1 & 3 don't measure; `resolutionScale` unlisted lever; 22 ms floor; stale refs | posted, no reply |
 | *(unfiled)* | fix | `pr/terrain-cache-bound` `56db325` | `TERRAIN_CACHE_MAX_ENTRIES=20_000`, `touchTerrainCacheEntry`, `setTerrainCacheEntry` w/ protected working set, both disk-load paths bounded, 4 tests | duplicate of #298 — held |

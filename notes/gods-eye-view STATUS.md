@@ -1,8 +1,8 @@
 ---
 title: gods-eye-view — Status / Log
 created: 2026-09-20 13:40 PDT
-updated: 2026-09-20 13:40 PDT
-status: three upstream PRs open, no responses yet; knowledge base created
+updated: 2026-09-20 22:14 PDT
+status: #677 and #678 merged upstream; #680 rebased and awaiting review
 tags:
   - project/gods-eye-view
   - status
@@ -20,6 +20,14 @@ aliases:
 > Local time is PDT. GitHub shows UTC, so comments/PRs made late on 2026-09-19 PDT carry a 2026-09-20 date upstream.
 
 ---
+
+## 2026-09-20 22:14 PDT — #677 and #678 MERGED; #680 rebased over the conflicts
+
+- Owner: "Fix the conflicts for #680." `git fetch upstream` showed **41 new upstream commits** since the branch point, including merges of **our #678 (22:33Z) and #677 (22:43Z), both by samehkhamis**, with no review comments. Success criterion 4 (at least one PR merged) is met.
+- Conflict cause: PR #284 (trackpad pinch zoom) added `PINCH_ZOOM_MULTIPLIER`/`boundedPinchDelta`/`installTrackpadPinchZoom` at the top of `src/app/viewer.js`, exactly where our `renderQuality` import went; and `CHANGELOG.md` gained five newer entries above ours. `docs/CURRENT-STATE.md`, `scripts/format-scope.json` and `scripts/package-boundaries.json` auto-merged (verified our lines survived: 1 / 1 / 2 hits).
+- Resolution: `git rebase upstream/main` on `pr/render-quality-presets`; Python regex split each conflict into HEAD/ours and re-emitted **ours-then-theirs** (imports stay grouped at the top of `viewer.js`; changelog is newest-first and ours merges last). Zero markers left. `GIT_EDITOR=true git rebase --continue` → single commit `395579a`.
+- Gates on the rebased tree: format 920 files clean; boundaries clean; build 3.34 s; targeted 12/12; **`npm test` 4,183 pass / 0 fail** (suite grew from 4,157 with upstream's new tests); **`test:track` 109/0/0** on a restarted dev server. `git push --force-with-lease`. Posted a short rebase note on #680.
+- Docs updated (this entry, HANDOFF state, APPENDIX ledger) and re-synced to `notes/`.
 
 ## 2026-09-20 13:40 PDT — Knowledge base created; loose ends closed; app running with layers
 

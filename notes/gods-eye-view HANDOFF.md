@@ -1,8 +1,8 @@
 ---
 title: gods-eye-view — Technical Log & Hand-off
 created: 2026-09-20 13:40 PDT
-updated: 2026-09-20 13:40 PDT
-status: three upstream PRs open, awaiting maintainer response; local app fully running with 6 providers keyed
+updated: 2026-09-20 22:14 PDT
+status: PRs #677 and #678 MERGED upstream (2026-09-20); #680 rebased and awaiting review; local app fully running with 6 providers keyed
 host: M70Q (Windows 11 Pro 10.0.26200, Intel UHD 770)
 tags:
   - project/gods-eye-view
@@ -17,7 +17,7 @@ aliases:
 
 # gods-eye-view — Technical Log & Hand-off
 
-> [!abstract] Last updated **2026-09-20 13:40 PDT**
+> [!abstract] Last updated **2026-09-20 22:14 PDT**
 > Companion notes: [[gods-eye-view REFERENCE]] (clean how-it-works) · [[gods-eye-view APPENDIX]] (deep detail: perf methodology, measurements, security audit) · [[gods-eye-view STATUS]] (chronological log + forensics).
 > GitHub (**public** fork): `https://github.com/GGPOShadows/gods-eye-view` · upstream: `https://github.com/bilawalsidhu/gods-eye-view` · local repo: `C:\Claude\Projects\gods-eye-view`.
 
@@ -28,11 +28,11 @@ aliases:
 > [!quote] Copy from here
 > I'm continuing my personal project on **gods-eye-view**, a public fork (`GGPOShadows/gods-eye-view`) of Bilawal Sidhu's `bilawalsidhu/gods-eye-view` — a ~280k-LOC vanilla-JS + CesiumJS + Vite browser app that renders live public geospatial data (aircraft, ships, satellites, fires, traffic, CCTV) on a photorealistic 3D globe. The local clone is at `C:\Claude\Projects\gods-eye-view` on Windows 11 (host M70Q, Intel UHD 770 integrated graphics, Node 24.19.0). It runs at `http://localhost:4173` via `npm run dev` — **use `localhost`, not `127.0.0.1`; Vite binds IPv6-only here.** The full knowledge base is in the Obsidian vault at `C:\Obsidian\Personal-Claude\Projects\gods-eye-view\` (four docs: HANDOFF, REFERENCE, STATUS, APPENDIX) and copied under `notes/` on the fork's `main`; read HANDOFF first.
 >
-> **State:** Phases 0–3 of the plan are done. Six providers are keyed in the git-ignored, ACL-locked `.env` (AISStream, NASA FIRMS, TomTom, Cesium ion, OpenSky, Google Maps); OpenAI and Launch Library are deliberately unset. Three upstream PRs are **open with no maintainer response yet**: #677 (TomTom daily tile budget 40k→6k), #678 (gitignore the whole dotenv ladder, a real credential-leak gap), #680 (opt-in `?quality=` render presets, measured +113% fps on this iGPU). I also posted a verified 502 bug on PR #298 and full profiling data on issue #8. A fourth fix (terrain cache LRU, branch `pr/terrain-cache-bound`) was NOT filed because it duplicates #298.
+> **State:** Phases 0–3 of the plan are done. Six providers are keyed in the git-ignored, ACL-locked `.env` (AISStream, NASA FIRMS, TomTom, Cesium ion, OpenSky, Google Maps); OpenAI and Launch Library are deliberately unset. **Two upstream PRs are MERGED** (2026-09-20, by maintainer samehkhamis): #677 (TomTom daily tile budget 40k→6k) and #678 (gitignore the whole dotenv ladder). #680 (opt-in `?quality=` render presets, measured +113% fps on this iGPU) is open, rebased onto current `main` after those merges, one commit, all gates green. I also posted a verified 502 bug on PR #298 and full profiling data on issue #8. A fourth fix (terrain cache LRU, branch `pr/terrain-cache-bound`) was NOT filed because it duplicates #298.
 >
 > **Guardrails:** (1) Never commit or push a `.env*` file or key — a pre-commit hook and hardened `.gitignore` guard this; do not bypass them. (2) Before any new upstream work, search existing PRs and issues first — this project has 217 open issues and ~7.7k forks and I already nearly filed a duplicate. (3) Every PR branches off `upstream/main`, one commit, and must pass all three gates: `npm run build`, `npm test`, `npm run test:track` (dev server must be up), plus `format:check` and `check:boundaries`; runtime changes also need `CHANGELOG.md` + `docs/CURRENT-STATE.md` in the same PR. (4) Any performance number is untrustworthy unless frames are counted from `scene.postRender` **and** the canvas size is asserted unchanged — I got burned twice by a hidden browser pane (canvas 0×0) and a free-running rAF after rendering silently stopped. Measure in a headed Puppeteer Chrome, never in the Claude browser pane. (5) Don't do more upstream work until at least one PR gets feedback; build in a style they might reject and it's wasted.
 >
-> **Next:** check the five upstream threads for responses; then the Windows credentials-file gap (the `OPENSKY_CREDENTIALS_FILE` setting is read only by three macOS/Linux shell scripts, and `npm run dev:secure` / `npm run opensky:import` are broken on Windows); then optionally a DISPLAY-rail UI control for the quality preset as a follow-up to #680. Two user-side TODOs remain: restrict the Google Maps key by HTTP referrer in Cloud Console, and set a Cloud Console budget alert.
+> **Next:** check the remaining upstream threads (#680, and the #298 / #8 comments) for responses; then the Windows credentials-file gap (the `OPENSKY_CREDENTIALS_FILE` setting is read only by three macOS/Linux shell scripts, and `npm run dev:secure` / `npm run opensky:import` are broken on Windows); then optionally a DISPLAY-rail UI control for the quality preset as a follow-up to #680. Two user-side TODOs remain: restrict the Google Maps key by HTTP referrer in Cloud Console, and set a Cloud Console budget alert.
 
 ---
 
@@ -47,9 +47,9 @@ aliases:
 - Success criteria:
   1. [x] Fork is public, cloned locally, builds and runs keyless.
   2. [x] All free-tier providers keyed and verified returning live data.
-  3. [x] At least one verified, non-duplicate improvement filed upstream — three are open.
-  4. [ ] At least one upstream PR merged.
-  5. [ ] Knowledge base stood up and kept current ← this document set.
+  3. [x] At least one verified, non-duplicate improvement filed upstream — three filed.
+  4. [x] At least one upstream PR merged — **#677 and #678 merged 2026-09-20** by samehkhamis.
+  5. [x] Knowledge base stood up and kept current — this document set.
 
 ## 📍 Current state
 
@@ -60,9 +60,11 @@ aliases:
 - [x] **Phase 3, item 3 (TomTom budget default)** — filed as **PR #677**.
 - [x] **Security fix (dotenv ignore)** — filed as **PR #678**.
 - [x] **Phase 3, item 2 (GPU performance)** — full investigation done, findings posted on issue #8, opt-in presets filed as **PR #680**.
-- [ ] **Awaiting maintainer response** on #677, #678, #680, the #298 comment and the #8 comment. As of 2026-09-20 13:40 PDT: zero reviews, zero comments. ← **NEXT: check these**
+- [x] **#677 and #678 MERGED** upstream 2026-09-20 (22:43Z / 22:33Z) by samehkhamis, no review comments.
+- [x] **#680 rebased** onto post-merge `main` (conflicts in `src/app/viewer.js` header vs the #284 pinch-zoom block, and `CHANGELOG.md` ordering); gates re-run green; force-pushed with lease; rebase note posted.
+- [ ] **Awaiting review on #680**, and replies on the #298 and #8 comments. ← **NEXT: check these**
 - [ ] **Phase 3, item 4 (Windows credentials gap)** — verified, unclaimed, not started.
-- [ ] **Phase 4 (knowledge base)** — this doc set, being created now.
+- [x] **Phase 4 (knowledge base)** — this doc set, in the vault and under `notes/` on fork `main`; kept current.
 - [ ] **User-side:** restrict Google Maps key by HTTP referrer in Cloud Console; set a Cloud Console budget alert. Neither confirmed done.
 
 ---
@@ -199,11 +201,11 @@ Invoke-WebRequest 'http://localhost:4173/api/launches'            # ~1 MB, works
 
 ## ⏭️ Next steps
 
-- [ ] **Check the five upstream threads** for maintainer responses and act on any review: PRs #677, #678, #680; comment on PR #298; comment on issue #8. (`gh pr view <n> --repo bilawalsidhu/gods-eye-view --json reviews,comments`)
+- [ ] **Check the remaining upstream threads**: PR #680 (rebased, awaiting review); comments on PR #298 and issue #8. (#677 and #678 are merged — done.) (`gh pr view <n> --repo bilawalsidhu/gods-eye-view --json reviews,comments`)
 - [ ] **User-side, not yet confirmed done:** in Google Cloud Console restrict the Maps key by HTTP referrer (`http://localhost:4173/*`) and by API (Map Tiles + Geocoding); set a Billing → Budgets alert. Also OpenAI usage limits if a key is ever added.
 - [ ] **Phase 3 item 4 — Windows credentials gap** (verified, unclaimed, owner personally hit it): teach the Node server to read `OPENSKY_CREDENTIALS_FILE` (accepting `clientId`/`clientSecret` or `client_id`/`client_secret`, per `docs/opensky-auth.md`), and make `npm run dev:secure` / `npm run opensky:import` not shell out to bash + macOS `security`. Check PRs/issues for `opensky|credential|windows` first.
 - [ ] **Follow-up to #680, only if the maintainer wants it:** a DISPLAY-rail control for the quality preset. Touches `src/ui/templates/display-controls.html`, `shellElements.js`, `displayControls.js`, `displayBindings.js`, `visualSettings.js`, `sharelink.js`, and the whole-file invariant test `src/sharelink.celestial.test.mjs`. Deliberately deferred — large surface, high conflict risk.
-- [ ] **Decide whether to merge `pr/render-quality-presets` into fork `main`** so the local app always has `?quality=`. Currently the dev server runs from the PR branch.
+- [ ] **Bring fork `main` up to date:** it is still upstream-as-of-2026-09-16 + gitignore hardening + `notes/`. Upstream has moved 41 commits including #677/#678. `git merge upstream/main` will likely auto-merge, leaving `.gitignore` with duplicated `.env`/`.env.*` lines (fork block appended at the end, #678 edited in place) — dedupe by hand. Then decide whether to also merge `pr/render-quality-presets` so `?quality=` is always available locally.
 - [ ] **Open investigation (hard):** the ~22 ms per-frame fixed cost outside JS. Main thread idle 72%, Cesium render phase ~11 ms, yet frames arrive every ~46–54 ms. Not the HUD, not `preserveDrawingBuffer`, not fill rate. Compositor/present path is the remaining suspect. Would need Chrome tracing (`chrome://tracing` / `--trace-startup`), not JS-side timers.
 - [ ] Keep this doc set current: append to STATUS as work happens, bump `updated:`.
 
