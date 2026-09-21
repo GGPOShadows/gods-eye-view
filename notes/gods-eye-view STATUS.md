@@ -1,7 +1,7 @@
 ---
 title: gods-eye-view — Status / Log
 created: 2026-09-20 13:40 PDT
-updated: 2026-09-20 22:14 PDT
+updated: 2026-09-20 22:23 PDT
 status: #677 and #678 merged upstream; #680 rebased and awaiting review
 tags:
   - project/gods-eye-view
@@ -20,6 +20,12 @@ aliases:
 > Local time is PDT. GitHub shows UTC, so comments/PRs made late on 2026-09-19 PDT carry a 2026-09-20 date upstream.
 
 ---
+
+## 2026-09-20 22:23 PDT — Fork `main` synced with upstream
+
+- `git merge --no-edit upstream/main` on fork `main`: was 5 ahead / 50 behind; **no conflicts**, 29 files, +1,025/−64 (includes our merged #677/#678, the pinch-zoom fix, AIS sentinel handling, dark select palette, adsbdb attribution, OpenSky doctor fix, Overpass/traffic antimeridian fixes, realtime debug-log hardening).
+- `.gitignore` came out with the predicted duplicates (fork block appended at EOF repeating `.env`, `.env.*`, `!.env.example`, `pinokio/ENVIRONMENT`, `.gev-cache/`, all now upstream via #678). Rewrote the trailing block to only the fork-local extras: `*.pem`, `*.crt`, `*.key`, `credentials.json`. Verified every secret path still ignored and `.env.example` still tracked; build clean.
+- Fork `main` is now upstream + 1 gitignore extra + `notes/`. Dev server still runs from `pr/render-quality-presets` (rebased on the same upstream, so identical code plus the preset).
 
 ## 2026-09-20 22:14 PDT — #677 and #678 MERGED; #680 rebased over the conflicts
 

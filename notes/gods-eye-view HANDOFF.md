@@ -1,7 +1,7 @@
 ---
 title: gods-eye-view — Technical Log & Hand-off
 created: 2026-09-20 13:40 PDT
-updated: 2026-09-20 22:14 PDT
+updated: 2026-09-20 22:23 PDT
 status: PRs #677 and #678 MERGED upstream (2026-09-20); #680 rebased and awaiting review; local app fully running with 6 providers keyed
 host: M70Q (Windows 11 Pro 10.0.26200, Intel UHD 770)
 tags:
@@ -133,7 +133,7 @@ Invoke-WebRequest 'http://localhost:4173/api/launches'            # ~1 MB, works
 
 - **Cost guards are app-side, not billing caps.** `TOMTOM_DAILY_TILE_BUDGET=6000` and `GEV_RATELIMIT_GOOGLE_PER_MIN=60` are in-memory, per-IP, reset on restart. Provider-side budget alerts are the real protection. TomTom's free tier has no card, so an overrun cuts the layer off rather than billing; Google's does bill.
 - **Restarting the dev server:** kill whatever owns port 4173, then `npm run dev`. The Provider Settings panel restarts it for you; manual `.env` edits don't.
-- **Branch discipline:** `main` on the fork = `upstream/main` + one gitignore-hardening commit (`45a2477`) + (after this checkpoint) the `notes/` doc copies. Never cut a PR branch from `main`; always from `upstream/main`.
+- **Branch discipline:** `main` on the fork = `upstream/main` + the `notes/` doc copies + a small `.gitignore` extras block (`*.pem`, `*.crt`, `*.key`, `credentials.json`; the dotenv rules are upstream now via #678). Sync with `git checkout main && git fetch upstream && git merge --no-edit upstream/main && git push`. Never cut a PR branch from `main`; always from `upstream/main`.
 - **Checking for duplicates before filing** (mandatory — see dead-ends):
   ```bash
   gh pr list --repo bilawalsidhu/gods-eye-view --state all --limit 500 --json number,title,state --jq '.[] | "#\(.number) [\(.state)] \(.title)"' | grep -iE 'keyword1|keyword2'
@@ -174,7 +174,7 @@ Invoke-WebRequest 'http://localhost:4173/api/launches'            # ~1 MB, works
 | File | What |
 |---|---|
 | `README.md` | **Upstream's** README — untouched, do not overwrite with a project README |
-| `.gitignore` | Hardened on fork `main` (commit `45a2477`): `.env`, `.env.*`, `!.env.example`, `pinokio/ENVIRONMENT`, `*.pem`, `*.crt`, `*.key`, `credentials.json`, `.gev-cache/`. The upstream PR #678 version is scoped tighter (dotenv ladder only). |
+| `.gitignore` | Upstream (incl. merged #678 dotenv rules) + a fork-local extras block: `*.pem`, `*.crt`, `*.key`, `credentials.json` |
 | `notes/gods-eye-view {HANDOFF,REFERENCE,STATUS,APPENDIX}.md` | Committed copies of this doc set (vault is source of truth) |
 | `src/app/renderQuality.js` + `.test.mjs` | **On branch `pr/render-quality-presets` only** — the `?quality=` preset module (PR #680) |
 | `src/app/viewer.js` | Only `new Cesium.Viewer` call in the codebase; `msaaSamples: 4`, `preserveDrawingBuffer: true`, `targetFrameRate = 60` |
@@ -205,7 +205,7 @@ Invoke-WebRequest 'http://localhost:4173/api/launches'            # ~1 MB, works
 - [ ] **User-side, not yet confirmed done:** in Google Cloud Console restrict the Maps key by HTTP referrer (`http://localhost:4173/*`) and by API (Map Tiles + Geocoding); set a Billing → Budgets alert. Also OpenAI usage limits if a key is ever added.
 - [ ] **Phase 3 item 4 — Windows credentials gap** (verified, unclaimed, owner personally hit it): teach the Node server to read `OPENSKY_CREDENTIALS_FILE` (accepting `clientId`/`clientSecret` or `client_id`/`client_secret`, per `docs/opensky-auth.md`), and make `npm run dev:secure` / `npm run opensky:import` not shell out to bash + macOS `security`. Check PRs/issues for `opensky|credential|windows` first.
 - [ ] **Follow-up to #680, only if the maintainer wants it:** a DISPLAY-rail control for the quality preset. Touches `src/ui/templates/display-controls.html`, `shellElements.js`, `displayControls.js`, `displayBindings.js`, `visualSettings.js`, `sharelink.js`, and the whole-file invariant test `src/sharelink.celestial.test.mjs`. Deliberately deferred — large surface, high conflict risk.
-- [ ] **Bring fork `main` up to date:** it is still upstream-as-of-2026-09-16 + gitignore hardening + `notes/`. Upstream has moved 41 commits including #677/#678. `git merge upstream/main` will likely auto-merge, leaving `.gitignore` with duplicated `.env`/`.env.*` lines (fork block appended at the end, #678 edited in place) — dedupe by hand. Then decide whether to also merge `pr/render-quality-presets` so `?quality=` is always available locally.
+- [x] **Fork `main` synced with upstream** (2026-09-20 evening): clean merge, `.gitignore` deduped to fork-local extras only. Remaining choice: whether to also merge `pr/render-quality-presets` into `main` so `?quality=` is always available locally (or just wait for #680 to land upstream).
 - [ ] **Open investigation (hard):** the ~22 ms per-frame fixed cost outside JS. Main thread idle 72%, Cesium render phase ~11 ms, yet frames arrive every ~46–54 ms. Not the HUD, not `preserveDrawingBuffer`, not fill rate. Compositor/present path is the remaining suspect. Would need Chrome tracing (`chrome://tracing` / `--trace-startup`), not JS-side timers.
 - [ ] Keep this doc set current: append to STATUS as work happens, bump `updated:`.
 
