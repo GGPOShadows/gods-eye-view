@@ -1,7 +1,7 @@
 ---
 title: gods-eye-view — Technical Appendix (deep detail)
 created: 2026-09-20 13:40 PDT
-updated: 2026-09-20 22:14 PDT
+updated: 2026-09-21 09:52 PDT
 tags:
   - project/gods-eye-view
   - appendix
@@ -137,7 +137,7 @@ exit 0
 
 Tested 2026-09-19: a staged `.env` containing `OPENAI_API_KEY=sk-proj-AbCd…(fake, 40 chars)` was blocked on both rules; the gitignore commit passed. Known benign matches in history: `sk-fixture-only-not-a-real-key` (`src/**/*.test.mjs`) and the `sk-`-prefixed Kamchatsky–Anadyr cable id (a cable id inside `src/data/local_data/telegeography_submarine_cables/cable-geo.json`).
 
-**Fork `main` `.gitignore` additions** (appended block, commit `45a2477`): `.env`, `.env.*`, `!.env.example`, `pinokio/ENVIRONMENT`, `*.pem`, `*.crt`, `*.key`, `credentials.json`, `.gev-cache/`. The upstream PR #678 version is only `.env` / `.env.*` / `!.env.example`, placed where the original `.env` line was, with a comment naming the two readers.
+**Fork `main` `.gitignore` today** (after the 2026-09-20 upstream sync, commit `a5df258`): upstream's file — which now includes `.env` / `.env.*` / `!.env.example` via merged #678 — plus a fork-local extras block of exactly `*.pem`, `*.crt`, `*.key`, `credentials.json`. *Historical:* the original fork hardening commit `45a2477` appended a 9-line block (`.env`, `.env.*`, `!.env.example`, `pinokio/ENVIRONMENT`, `*.pem`, `*.crt`, `*.key`, `credentials.json`, `.gev-cache/`); the five lines upstream now provides were deduped out at the sync.
 
 ## D. Upstream contribution ledger
 

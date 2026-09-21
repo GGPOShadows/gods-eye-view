@@ -1,8 +1,8 @@
 ---
 title: gods-eye-view — Technical Log & Hand-off
 created: 2026-09-20 13:40 PDT
-updated: 2026-09-20 22:23 PDT
-status: PRs #677 and #678 MERGED upstream (2026-09-20); #680 rebased and awaiting review; local app fully running with 6 providers keyed
+updated: 2026-09-21 09:52 PDT
+status: #677/#678 MERGED upstream; #680 open, checks clean, awaiting review; fork main synced; checkpointed 2026-09-21 for an Opus 5 continuation
 host: M70Q (Windows 11 Pro 10.0.26200, Intel UHD 770)
 tags:
   - project/gods-eye-view
@@ -17,7 +17,7 @@ aliases:
 
 # gods-eye-view — Technical Log & Hand-off
 
-> [!abstract] Last updated **2026-09-20 22:14 PDT**
+> [!abstract] Last updated **2026-09-21 09:30 PDT**
 > Companion notes: [[gods-eye-view REFERENCE]] (clean how-it-works) · [[gods-eye-view APPENDIX]] (deep detail: perf methodology, measurements, security audit) · [[gods-eye-view STATUS]] (chronological log + forensics).
 > GitHub (**public** fork): `https://github.com/GGPOShadows/gods-eye-view` · upstream: `https://github.com/bilawalsidhu/gods-eye-view` · local repo: `C:\Claude\Projects\gods-eye-view`.
 
@@ -28,9 +28,11 @@ aliases:
 > [!quote] Copy from here
 > I'm continuing my personal project on **gods-eye-view**, a public fork (`GGPOShadows/gods-eye-view`) of Bilawal Sidhu's `bilawalsidhu/gods-eye-view` — a ~280k-LOC vanilla-JS + CesiumJS + Vite browser app that renders live public geospatial data (aircraft, ships, satellites, fires, traffic, CCTV) on a photorealistic 3D globe. The local clone is at `C:\Claude\Projects\gods-eye-view` on Windows 11 (host M70Q, Intel UHD 770 integrated graphics, Node 24.19.0). It runs at `http://localhost:4173` via `npm run dev` — **use `localhost`, not `127.0.0.1`; Vite binds IPv6-only here.** The full knowledge base is in the Obsidian vault at `C:\Obsidian\Personal-Claude\Projects\gods-eye-view\` (four docs: HANDOFF, REFERENCE, STATUS, APPENDIX) and copied under `notes/` on the fork's `main`; read HANDOFF first.
 >
-> **State:** Phases 0–3 of the plan are done. Six providers are keyed in the git-ignored, ACL-locked `.env` (AISStream, NASA FIRMS, TomTom, Cesium ion, OpenSky, Google Maps); OpenAI and Launch Library are deliberately unset. **Two upstream PRs are MERGED** (2026-09-20, by maintainer samehkhamis): #677 (TomTom daily tile budget 40k→6k) and #678 (gitignore the whole dotenv ladder). #680 (opt-in `?quality=` render presets, measured +113% fps on this iGPU) is open, rebased onto current `main` after those merges, one commit, all gates green. I also posted a verified 502 bug on PR #298 and full profiling data on issue #8. A fourth fix (terrain cache LRU, branch `pr/terrain-cache-bound`) was NOT filed because it duplicates #298.
+> **State (2026-09-21 09:30 PDT):** Phases 0–4 are done. Six providers are keyed in the git-ignored, ACL-locked `.env` (AISStream, NASA FIRMS, TomTom, Cesium ion, OpenSky, Google Maps); OpenAI and Launch Library are deliberately unset. **#677 (TomTom budget) and #678 (dotenv gitignore) are MERGED upstream** (2026-09-20, by samehkhamis, no review comments). **#680** (opt-in `?quality=` render presets, +113% fps on this iGPU) is open, one commit `395579a` rebased onto post-merge `main`, checks clean, awaiting review. Fork `main` (`beb7e13`) is synced with upstream, 0 behind, plus `notes/` and a 4-line `.gitignore` extras block. I also posted a verified 502 bug on PR #298 and full profiling data on issue #8; neither has a reply yet. A fourth fix (terrain cache LRU, branch `pr/terrain-cache-bound`) was NOT filed because it duplicates #298. The dev server runs from `pr/render-quality-presets`.
 >
-> **Guardrails:** (1) Never commit or push a `.env*` file or key — a pre-commit hook and hardened `.gitignore` guard this; do not bypass them. (2) Before any new upstream work, search existing PRs and issues first — this project has 217 open issues and ~7.7k forks and I already nearly filed a duplicate. (3) Every PR branches off `upstream/main`, one commit, and must pass all three gates: `npm run build`, `npm test`, `npm run test:track` (dev server must be up), plus `format:check` and `check:boundaries`; runtime changes also need `CHANGELOG.md` + `docs/CURRENT-STATE.md` in the same PR. (4) Any performance number is untrustworthy unless frames are counted from `scene.postRender` **and** the canvas size is asserted unchanged — I got burned twice by a hidden browser pane (canvas 0×0) and a free-running rAF after rendering silently stopped. Measure in a headed Puppeteer Chrome, never in the Claude browser pane. (5) Don't do more upstream work until at least one PR gets feedback; build in a style they might reject and it's wasted.
+> **Guardrails:** (1) Never commit or push a `.env*` file or key — a pre-commit hook (`.git/hooks/pre-commit`, host-only, does NOT clone; recreate from APPENDIX §C on a fresh checkout) and the `.gitignore` guard this; do not bypass them. Two keys are client-exposed **by design** (Google Maps, Cesium ion — visible in devtools); restrict them provider-side, never try to hide them. The app-side guards `TOMTOM_DAILY_TILE_BUDGET` and `GEV_RATELIMIT_GOOGLE_PER_MIN` are in-memory per-IP throttles, **not billing caps** — Google can bill; only a Cloud Console budget alert actually caps spend. Project boundaries: no metered spend (OpenAI, more Google) without an explicit owner decision, and nothing commercial — bundled datasets are CC BY-NC (TeleGeography cables, Bhote Koshi imagery) even though the code is MIT. (2) Before any new upstream work, search existing PRs and issues first — this project has 217 open issues and ~7.7k forks and I already nearly filed a duplicate. (3) Every PR branches off `upstream/main`, one commit, and must pass all three gates: `npm run build`, `npm test`, `npm run test:track` (dev server must be up), plus `format:check` and `check:boundaries`; runtime changes also need `CHANGELOG.md` + `docs/CURRENT-STATE.md` in the same PR. (4) Any performance number is untrustworthy unless frames are counted from `scene.postRender` **and** the canvas size is asserted unchanged — I got burned twice by a hidden browser pane (canvas 0×0) and a free-running rAF after rendering silently stopped. Measure in a headed Puppeteer Chrome, never in the Claude browser pane. (5) Don't do more upstream work until at least one PR gets feedback; build in a style they might reject and it's wasted.
+>
+> **Session note:** this continuation runs on **Opus 5** to conserve tokens until the Saturday reset — keep subagents on sonnet/haiku (memory: agent-model-cost-preference). The desktop app's Auto-fix PR monitor was on for #680 in the previous session; if a `<ci-monitor-event>` arrives for it, follow that monitor's rule (**merge `main` in, never rebase/force-push**) — the previous session rebased once, before the monitor existed.
 >
 > **Next:** check the remaining upstream threads (#680, and the #298 / #8 comments) for responses; then the Windows credentials-file gap (the `OPENSKY_CREDENTIALS_FILE` setting is read only by three macOS/Linux shell scripts, and `npm run dev:secure` / `npm run opensky:import` are broken on Windows); then optionally a DISPLAY-rail UI control for the quality preset as a follow-up to #680. Two user-side TODOs remain: restrict the Google Maps key by HTTP referrer in Cloud Console, and set a Cloud Console budget alert.
 
@@ -54,7 +56,7 @@ aliases:
 ## 📍 Current state
 
 - [x] **Phase 0** — forked to `GGPOShadows/gods-eye-view` (public, inherited from parent), cloned to `C:\Claude\Projects\gods-eye-view`, `upstream` remote added, codebase mapped (three parallel Explore agents), secrets hardened (gitignore + pre-commit hook), history scanned clean.
-- [x] **Phase 1** — `npm ci` (123 packages, 18 s), `npm run doctor` ready, `npm test` 4,149 pass, `npm run build` clean, dev server up, globe renders keyless on Esri imagery.
+- [x] **Phase 1** — `npm ci` (123 packages, 18 s), `npm run doctor` ready, `npm test` 4,145 tests (4,135 pass, 10 skipped) + allocation gates 1 and 13, 0 failures, `npm run build` clean, dev server up, globe renders keyless on Esri imagery.
 - [x] **Phase 2** — 6 of 8 providers keyed via the in-app POWER UP panel; each proxy queried directly and returning real payloads; `.env` ACL verified as exactly owner + SYSTEM + Administrators; TomTom budget set to 6000/day; Google throttle set to 60/min.
 - [x] **Phase 3, item 1 (terrain memory leak)** — fixed and tested on `pr/terrain-cache-bound`, **not filed** (duplicates upstream PR #298); findings posted as a comment on #298 instead.
 - [x] **Phase 3, item 3 (TomTom budget default)** — filed as **PR #677**.
@@ -62,7 +64,7 @@ aliases:
 - [x] **Phase 3, item 2 (GPU performance)** — full investigation done, findings posted on issue #8, opt-in presets filed as **PR #680**.
 - [x] **#677 and #678 MERGED** upstream 2026-09-20 (22:43Z / 22:33Z) by samehkhamis, no review comments.
 - [x] **#680 rebased** onto post-merge `main` (conflicts in `src/app/viewer.js` header vs the #284 pinch-zoom block, and `CHANGELOG.md` ordering); gates re-run green; force-pushed with lease; rebase note posted.
-- [ ] **Awaiting review on #680**, and replies on the #298 and #8 comments. ← **NEXT: check these**
+- [ ] **Awaiting review on #680** (checks CLEAN as of 2026-09-21 09:30), and replies on the #298 and #8 comments. ← **NEXT: check these**
 - [ ] **Phase 3, item 4 (Windows credentials gap)** — verified, unclaimed, not started.
 - [x] **Phase 4 (knowledge base)** — this doc set, in the vault and under `notes/` on fork `main`; kept current.
 - [ ] **User-side:** restrict Google Maps key by HTTP referrer in Cloud Console; set a Cloud Console budget alert. Neither confirmed done.
@@ -133,6 +135,7 @@ Invoke-WebRequest 'http://localhost:4173/api/launches'            # ~1 MB, works
 
 - **Cost guards are app-side, not billing caps.** `TOMTOM_DAILY_TILE_BUDGET=6000` and `GEV_RATELIMIT_GOOGLE_PER_MIN=60` are in-memory, per-IP, reset on restart. Provider-side budget alerts are the real protection. TomTom's free tier has no card, so an overrun cuts the layer off rather than billing; Google's does bill.
 - **Restarting the dev server:** kill whatever owns port 4173, then `npm run dev`. The Provider Settings panel restarts it for you; manual `.env` edits don't.
+- **Two conflict-resolution regimes, don't mix them on one PR:** I resolved #680's first conflict by `git rebase upstream/main` + `--force-with-lease` (one clean commit, which this repo's CONTRIBUTING favours). The desktop app's **Auto-fix pull requests** monitor, when enabled, instead **merges the base branch in and never rebases or force-pushes**. If the monitor is on, let it own conflicts; if it isn't, rebase is fine — but pick one per PR.
 - **Branch discipline:** `main` on the fork = `upstream/main` + the `notes/` doc copies + a small `.gitignore` extras block (`*.pem`, `*.crt`, `*.key`, `credentials.json`; the dotenv rules are upstream now via #678). Sync with `git checkout main && git fetch upstream && git merge --no-edit upstream/main && git push`. Never cut a PR branch from `main`; always from `upstream/main`.
 - **Checking for duplicates before filing** (mandatory — see dead-ends):
   ```bash
@@ -178,7 +181,7 @@ Invoke-WebRequest 'http://localhost:4173/api/launches'            # ~1 MB, works
 | `notes/gods-eye-view {HANDOFF,REFERENCE,STATUS,APPENDIX}.md` | Committed copies of this doc set (vault is source of truth) |
 | `src/app/renderQuality.js` + `.test.mjs` | **On branch `pr/render-quality-presets` only** — the `?quality=` preset module (PR #680) |
 | `src/app/viewer.js` | Only `new Cesium.Viewer` call in the codebase; `msaaSamples: 4`, `preserveDrawingBuffer: true`, `targetFrameRate = 60` |
-| `server/providers/traffic.js` | TomTom proxy + daily budget governor; `DEFAULT_DAILY_BUDGET` = 6000 on `pr/tomtom-budget` (PR #677), still 40000 upstream |
+| `server/providers/traffic.js` | TomTom proxy + daily budget governor; `DEFAULT_DAILY_BUDGET` = 6000 upstream since #677 merged (verified: `git show upstream/main:server/providers/traffic.js`) |
 | `server/providers/terrain.js`, `src/data/terrainHeightsProxy.js` | The unbounded cache (fixed on `pr/terrain-cache-bound`, unfiled) |
 | `server/standalone/key-setup.js`, `key-setup-hardening.mjs` | The POWER UP panel backend + Windows `icacls` DACL hardener |
 | `scripts/setup-doctor.mjs` | `npm run doctor`; line 92 enumerates the dotenv ladder the app reads |

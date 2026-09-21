@@ -1,8 +1,8 @@
 ---
 title: gods-eye-view — Reference
 created: 2026-09-20 13:40 PDT
-updated: 2026-09-20 13:40 PDT
-status: settled knowledge as of 2026-09-20; three upstream PRs pending
+updated: 2026-09-21 09:52 PDT
+status: settled knowledge as of 2026-09-21; #677/#678 merged upstream, #680 open
 tags:
   - project/gods-eye-view
   - reference
@@ -27,8 +27,8 @@ aliases:
 **Current/achieved:**
 - Public fork `GGPOShadows/gods-eye-view` of `bilawalsidhu/gods-eye-view`, clone at `C:\Claude\Projects\gods-eye-view`, `upstream` remote wired.
 - App runs keyless and keyed; 6 of 8 providers live (AISStream, NASA FIRMS, TomTom, Cesium ion, OpenSky, Google Maps). Photorealistic Google 3D tiles active.
-- Upstream PRs open: **#677** (TomTom budget), **#678** (dotenv ignore), **#680** (render-quality presets). Comments posted on **PR #298** (verified eviction bug) and **issue #8** (full iGPU profiling).
-- Secrets: hardened `.gitignore`, pre-commit guard, Windows DACL on `.env`, history scanned clean.
+- Upstream: **#677** (TomTom budget) and **#678** (dotenv ignore) **MERGED** 2026-09-20 by samehkhamis; **#680** (render-quality presets) open, one commit, checks clean, awaiting review. Comments posted on **PR #298** (verified eviction bug) and **issue #8** (full iGPU profiling); no replies yet.
+- Secrets: upstream `.gitignore` now covers the whole dotenv ladder (via #678) plus a fork-local extras block; pre-commit guard; Windows DACL on `.env`; history scanned clean. Fork `main` synced with upstream 2026-09-20 (0 behind).
 
 ## 2. What the upstream project is
 
@@ -87,11 +87,11 @@ npm ci                                                # 123 pkgs; allow-scripts 
 npm run doctor                                        # "Ready"
 npm run dev                                           # http://localhost:4173  (use localhost, not 127.0.0.1)
 ```
-Then in the app: **POWER UP** → paste free keys → **SAVE KEYS**. Then append cost guards to `.env` (preserves ACL) and restart:
+Then in the app: **POWER UP** → paste free keys → **SAVE KEYS**. If a Google key is added, append the spend throttle to `.env` (Add-Content preserves the ACL) and restart:
 ```
-TOMTOM_DAILY_TILE_BUDGET=6000
 GEV_RATELIMIT_GOOGLE_PER_MIN=60
 ```
+(`TOMTOM_DAILY_TILE_BUDGET` now defaults to 6000 upstream since #677 merged; set it only to override.) These are app-side, per-IP, in-memory guards — **not billing caps**; provider-side budget alerts are the real protection.
 Optional perf preset (branch `pr/render-quality-presets`): `http://localhost:4173/?quality=balanced|performance`.
 
 ## 6. Providers — what each key does and costs
@@ -101,7 +101,7 @@ Optional perf preset (branch `pr/render-quality-presets`): `http://localhost:417
 | Cesium ion | `CESIUM_ION_TOKEN` | free signup | **Client-exposed.** Use an `assets:read` token. Ion-hosted Google 3D + Bing + world terrain |
 | AISStream | `AISSTREAM_API_KEY` | free signup | Live vessels via server WebSocket; client cap `VITE_AIS_LIVE_MAX_ROWS=12000` |
 | NASA FIRMS | `FIRMS_MAP_KEY` | free, email only | Active fires; ~36 MB payload |
-| TomTom | `TOMTOM_API_KEY` | free, **200K tiles/month**, no card | Traffic Flow & Incidents Raster Tiles. Key = "My first API key" at `my.tomtom.com`. Upstream default budget 40k/day exhausts the month in 5 days → **PR #677** sets 6k/day |
+| TomTom | `TOMTOM_API_KEY` | free, **200K tiles/month**, no card | Traffic Flow & Incidents Raster Tiles. Key = "My first API key" at `my.tomtom.com`. The old 40k/day default exhausted the month in 5 days; **#677 (merged 2026-09-20) made 6k/day the upstream default** |
 | OpenSky | `OPENSKY_CLIENT_ID` + `_SECRET` | free signup | Only raises polling credits; anon works. Secret is shown once, in a downloaded `credentials.json`. On Windows, paste both values into the panel — the file path setting is bash-only |
 | Google Maps | `GOOGLE_MAPS_API_KEY` | **metered**, billing account required; 1,000 photorealistic-3D sessions/month currently free | **Client-exposed.** Restrict by HTTP referrer + API in Cloud Console. Set `GEV_RATELIMIT_GOOGLE_PER_MIN` (default unlimited) |
 | OpenAI | `OPENAI_API_KEY` | **metered** — "the one that costs real money" | Realtime voice, cents/minute, $5/session app cap. **Unset.** |
@@ -135,7 +135,7 @@ Full methodology and tables in [[gods-eye-view APPENDIX#A. Performance measureme
 - Never count rAF ticks as fps; count `postRender` and check the canvas.
 - Sync `scene.render()+gl.finish()` timing misses MSAA resolve/present — don't use it for user-facing fps.
 - `OPENSKY_CREDENTIALS_FILE`, `npm run dev:secure`, `npm run opensky:import` are macOS/Linux-only (bash + `security` keychain). Windows CI never exercises them.
-- Upstream `.gitignore` ignores only bare `.env`; `.env.local` and `.env.<mode>[.local]` are read by the app but committable (PR #678). Fork `main` is hardened regardless.
+- Upstream `.gitignore` used to ignore only bare `.env` while the app reads `.env.local` and `.env.<mode>[.local]` too; **#678 (merged 2026-09-20) closed that** — upstream now ignores the whole dotenv ladder. Fork `main` adds only `*.pem`, `*.crt`, `*.key`, `credentials.json`. Hooks do not clone: recreate `.git/hooks/pre-commit` from APPENDIX §C on a fresh checkout.
 - App-side rate limits and budgets are not billing caps.
 - Hooks (`.git/hooks/pre-commit`) don't clone — recreate on a fresh checkout (APPENDIX §C).
 - Issue #8's file references are stale: `src/main.js` and `style.css` were refactored; `backdrop-filter` count is 64 across `src/ui/styles/*.css`; its item 5 is already done.

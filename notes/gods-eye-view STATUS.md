@@ -1,8 +1,8 @@
 ---
 title: gods-eye-view — Status / Log
 created: 2026-09-20 13:40 PDT
-updated: 2026-09-20 22:23 PDT
-status: #677 and #678 merged upstream; #680 rebased and awaiting review
+updated: 2026-09-21 09:52 PDT
+status: #677/#678 merged; #680 open, checks clean, awaiting review; session checkpointed before compaction
 tags:
   - project/gods-eye-view
   - status
@@ -20,6 +20,13 @@ aliases:
 > Local time is PDT. GitHub shows UTC, so comments/PRs made late on 2026-09-19 PDT carry a 2026-09-20 date upstream.
 
 ---
+
+## 2026-09-21 09:30 PDT — Pre-compaction checkpoint; continuing on Opus 5
+
+- Owner is compacting this session and running it on **Opus 5 until the Saturday usage reset** to conserve tokens. No project work in this entry — a state snapshot so the next context window starts correct.
+- Live checks at 2026-09-21 09:30 PDT: fork `main` = `beb7e13`, 8 ahead / 0 behind upstream, tree clean; `pr/render-quality-presets` = `395579a`, one commit. **#680 now MERGEABLE / CLEAN** (was BLOCKED last night while checks ran), 0 reviews, 1 comment (mine). #677/#678 MERGED. No replies yet on the #298 or #8 comments (last comment on each is mine). Dev server up on `pr/render-quality-presets`, 6/8 keys set (`google-maps, aisstream, firms, tomtom, cesium-ion, opensky`), TomTom budget 6000 with `dailyCount` 0 for 2026-09-21, `.env` ACL = Administrators / SYSTEM / M70Q\Medal, pre-commit hook armed, Node 24.19.0 / npm 11.17.0.
+- The desktop app's **Auto-fix pull requests** monitor was enabled for this session and is watching #680. Its rule for conflicts differs from what I did last night: it says **merge the base branch in, never rebase or force-push**. Recorded in HANDOFF gotchas so the two approaches don't get mixed on one PR.
+- **Doc-staleness audit** (workflow `wf_6367397d-8a4`, 16 sonnet agents confirmed from metadata, 4 min 38 s): **7 confirmed — 4 high, 3 medium.** All real: REFERENCE had never been edited after its 13:40 creation and still called #677/#678 open and upstream's `.gitignore` unfixed; HANDOFF's file inventory still said "40000 upstream" for the TomTom default; APPENDIX §C described the pre-sync 9-line gitignore block as current; the resume prompt omitted that the cost guards are not billing caps, that two keys are client-exposed by design, the no-metered-spend / non-commercial boundaries, and that the pre-commit hook does not clone. Also a low: Phase 1 test count was a summed pass figure (4,149) — restated as 4,145 + 1 + 13. All fixed before the sync below.
 
 ## 2026-09-20 22:23 PDT — Fork `main` synced with upstream
 
